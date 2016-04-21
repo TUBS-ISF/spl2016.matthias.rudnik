@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<featureModel>
+		<properties/>
+		<struct>
+			<and abstract="true" mandatory="true" name="ElevatorSimulation">
+				<description>
+					
+				</description>
+				<feature mandatory="true" name="Elevate">
+					<description>
+						Moves the elevators cabine up and down to a specified floor.
+					</description>
+				</feature>
+				<or name="Display">
+					<description>
+						Visual user output, indicating the elevators state.
+					</description>
+					<feature mandatory="true" name="Floor">
+						<description>
+							Uses display to ouput the floor where the elevator currently is.
+						</description>
+					</feature>
+					<feature mandatory="true" name="Modus">
+						<description>
+							Outputs Elevators currents mode (Emergency, Cleaning, Police, Normal)
+						</description>
+					</feature>
+					<feature mandatory="true" name="DoorStatus">
+						<description>
+							
+						</description>
+					</feature>
+				</or>
+				<and abstract="true" mandatory="true" name="Input">
+					<description>
+						
+					</description>
+					<feature mandatory="true" name="Numbers">
+						<description>
+							
+						</description>
+					</feature>
+					<feature name="Emergency">
+						<description>
+							
+						</description>
+					</feature>
+					<feature name="CloseDoor">
+						<description>
+							
+						</description>
+					</feature>
+					<feature name="OpenDoor">
+						<description>
+							
+						</description>
+					</feature>
+				</and>
+				<or mandatory="true" name="Doors">
+					<description>
+						
+					</description>
+					<feature mandatory="true" name="Front">
+						<description>
+							
+						</description>
+					</feature>
+					<feature mandatory="true" name="Back">
+						<description>
+							
+						</description>
+					</feature>
+				</or>
+				<and abstract="true" mandatory="true" name="Modes">
+					<description>
+						
+					</description>
+					<feature mandatory="true" name="NormalMode">
+						<description>
+							
+						</description>
+					</feature>
+					<feature name="PoliceMode">
+						<description>
+							
+						</description>
+					</feature>
+					<feature name="CleaningMode">
+						<description>
+							
+						</description>
+					</feature>
+					<feature name="EmergencyMode">
+						<description>
+							
+						</description>
+					</feature>
+				</and>
+				<or name="Audio">
+					<description>
+						
+					</description>
+					<feature mandatory="true" name="VoiceAudio">
+						<description>
+							
+						</description>
+					</feature>
+					<feature mandatory="true" name="Music">
+						<description>
+							
+						</description>
+					</feature>
+				</or>
+			</and>
+		</struct>
+		<constraints/>
+		<calculations Auto="true" Constraints="true" Features="true" Redundant="true" Tautology="true"/>
+		<comments/>
+		<featureOrder userDefined="false"/>
+	</featureModel>
