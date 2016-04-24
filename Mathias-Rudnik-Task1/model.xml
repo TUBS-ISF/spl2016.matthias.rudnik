@@ -27,38 +27,39 @@
 					</feature>
 					<feature mandatory="true" name="DoorStatus">
 						<description>
-							
+							Outputs the current door state
 						</description>
 					</feature>
 				</or>
 				<and abstract="true" mandatory="true" name="Input">
 					<description>
-						
+						input method for user
 					</description>
 					<feature mandatory="true" name="Numbers">
 						<description>
+							Keypad where user enters floor he wants to go to
 							
 						</description>
 					</feature>
 					<feature name="Emergency">
 						<description>
-							
+							Button for case of emergency
 						</description>
 					</feature>
 					<feature name="CloseDoor">
 						<description>
-							
+							Button to close the door immediately
 						</description>
 					</feature>
 					<feature name="OpenDoor">
 						<description>
-							
+							Button to open the door immediately
 						</description>
 					</feature>
 				</and>
 				<or mandatory="true" name="Doors">
 					<description>
-						
+						doors for entering elevator
 					</description>
 					<feature mandatory="true" name="Front">
 						<description>
@@ -77,37 +78,37 @@
 					</description>
 					<feature mandatory="true" name="NormalMode">
 						<description>
-							
+							Normal operation mode
 						</description>
 					</feature>
 					<feature name="PoliceMode">
 						<description>
-							
+							Mode used by the police when they want to go to a floor as fast as possible without stops
 						</description>
 					</feature>
 					<feature name="CleaningMode">
 						<description>
-							
+							Mode for cleaning the elevator. Doors won't close
 						</description>
 					</feature>
 					<feature name="EmergencyMode">
 						<description>
-							
+							Mode indicating emergency. Call for help.
 						</description>
 					</feature>
 				</and>
 				<or name="Audio">
 					<description>
-						
+						acoustic output for user interaction
 					</description>
 					<feature mandatory="true" name="VoiceAudio">
 						<description>
-							
+							Speaker tells the user which floor they reached
 						</description>
 					</feature>
 					<feature mandatory="true" name="Music">
 						<description>
-							
+							Plays music inside the elevator
 						</description>
 					</feature>
 				</or>
