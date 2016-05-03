@@ -221,9 +221,6 @@ public class Elevator implements Runnable {
 			if (floor < jobs.first())
 				dir = Direction.UP;
 		}
-		synchronized (this) {
-			state = State.CLOSING;
-		}
 		try {
 			synchronized (this) {
 				this.wait(5000);
@@ -231,6 +228,10 @@ public class Elevator implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return;
+		}
+		synchronized (this) {
+			if (state == State.WAITING)
+				state = State.CLOSING;
 		}
 	}
 
