@@ -23,7 +23,7 @@ public class Elevator implements Runnable {
 	private Door backDoor;
 
 	private enum State {
-		MOVING, OPENING, WAITING, CLOSING
+		MOVING, OPENING, WAITING, CLOSING, CLEANING, POLICE
 	}
 
 	private enum Direction {
@@ -138,6 +138,40 @@ public class Elevator implements Runnable {
 		}
 	}
 
+	public void enablePoliceMode() {
+		synchronized (this) {
+			state = State.POLICE;
+			this.notifyAll();
+		}
+	}
+
+	public void disablePoliceMode() {
+		synchronized (this) {
+			if (state == State.POLICE)
+				state = State.WAITING;
+		}
+	}
+
+	public void enableCleaningMode() {
+		if (PropertyManager.getProperty("CleaningMode"))
+			synchronized (this) {
+				if (state == State.WAITING) {
+					state = State.CLEANING;
+					this.notifyAll();
+				}
+			}
+	}
+
+	public void disableCleaningMode() {
+		if (PropertyManager.getProperty("CleaningMode"))
+			synchronized (this) {
+				if (state == State.CLEANING) {
+					state = State.WAITING;
+					this.notifyAll();
+				}
+			}
+	}
+
 	private void openDoor() {
 		System.out.println("now realy opening doors");
 		if (PropertyManager.getProperty("Front"))
@@ -151,21 +185,23 @@ public class Elevator implements Runnable {
 	}
 
 	public void closeDoorImmediately() {
-		synchronized (this) {
-			if (state == State.WAITING && !jobs.isEmpty()) {
-				state = State.CLOSING;
-				this.notifyAll();
+		if (PropertyManager.getProperty("CloseDoor"))
+			synchronized (this) {
+				if (state == State.WAITING && !jobs.isEmpty()) {
+					state = State.CLOSING;
+					this.notifyAll();
+				}
 			}
-		}
 	}
 
 	public void openDoorImmediately() {
-		synchronized (this) {
-			if ((state == State.WAITING || state == State.CLOSING)
-					&& !jobs.isEmpty())
-				state = State.OPENING;
-			this.notifyAll();
-		}
+		if (PropertyManager.getProperty("OpenDoor"))
+			synchronized (this) {
+				if ((state == State.WAITING || state == State.CLOSING)
+						&& !jobs.isEmpty())
+					state = State.OPENING;
+				this.notifyAll();
+			}
 	}
 
 	private synchronized void closeDoor() {
@@ -235,6 +271,16 @@ public class Elevator implements Runnable {
 		}
 	}
 
+	private void doCleaning() {
+		synchronized (this) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	@Override
 	public void run() {
 		while (running) {
@@ -250,6 +296,9 @@ public class Elevator implements Runnable {
 				break;
 			case CLOSING:
 				closeDoor();
+				break;
+			case CLEANING:
+				doCleaning();
 				break;
 			default:
 				break;

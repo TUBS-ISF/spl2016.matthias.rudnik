@@ -74,6 +74,21 @@ public class ElevatorRessource {
 	
 	@POST
 	@Timed
+	@Path("cleaningMode")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public int enableCleaningMode(boolean b) {
+		if(b) {
+			System.out.println("Enabling Cleaning Mode");
+			e.enableCleaningMode();
+		} else {
+			System.out.println("Disabling Cleaning Mode");
+			e.disableCleaningMode();
+		}
+		return 0;
+	}
+	
+	@POST
+	@Timed
 	@Path("job")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public int updateRecord(Job job) {
