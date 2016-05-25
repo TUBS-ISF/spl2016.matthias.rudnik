@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Superfahrstuhl</title>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+
+    <style>
+
+      #head{
+        height: 80px;
+        font-size: 20px;
+        text-align: center;
+        font-family: “Century Gothic”, CenturyGothic, AppleGothic, sans-serif;
+      }
+
+      #elevatorContainer{
+        position: absolute;
+      }
+
+      #displayContainer{
+        float: left;
+        background-color: lightgrey;
+        border-style: solid;
+        border-width: 1px 1px 1px 1px;
+        border-color: darkgrey;
+        padding: 1em;
+        font-family: “Century Gothic”, CenturyGothic, AppleGothic, sans-serif;
+        font-style: bold;
+      }
+
+      #chamber{
+        height: 500px;
+        width: 200px;
+        background-color: grey;
+        position: absolute;
+      }
+
+      #chamber > .floor{
+        width: 100%;
+        background-color: darkgrey;
+        float:left;
+        -webkit-transition: background-color 500ms linear;
+      }
+
+      #chamber > .elevator{
+        -webkit-transition: top 0.5s;
+        width: 100%;
+        background-color: blue;
+        float:left;
+      }
+
+      #chamber > .door{
+        -webkit-transition: top 0.5s, bottom 0.5s;
+        transition:opacity 0.1s linear;*
+        width: 100%;
+        background-color: darkblue;
+        float:left;
+      }
+
+      .button{
+        border-style: solid;
+        border-width: 1px 1px 1px 1px;
+        border-color: darkgrey;
+        background-color: darkgrey;
+        text-align: center;
+        color: white;
+        padding:0.5em;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+    <div id="head">
+      <h1>Superfahrstuhl</h1>
+    </div>
+    <div id="displayContainer">
+      <div id="floorDisplay" style="margin: 10px;"></div>
+      <div id="emergencyButton" class="button" onclick="alert('Hilfeeee');">Hilfe</div>
+      <div id="closeDoorButton" class="button" onclick="closeDoor();">Tür schließen</div>
+      <div id="closeDoorButton" class="button" onclick="openDoor();">Tür öffnen</div>
+      <div id="enableCleaningMode" class="button" onclick="enableCleaningMode();">Reinigungsmodus aktivieren</div>
+      <div id="disableCleaningMode" class="button" onclick="disableCleaningMode();">Reinigungsmodus deaktivieren</div>
+      <div id="enableEmergencyMode" class="button" onclick="enableEmergencyMode();">Notfall aktivieren</div>
+      <div id="disableEmergencyMode" class="button" onclick="disableEmergencyMode();">Notfall deaktivieren</div>
+    </div>
+    <div id="elevatorContainer">
+      <div id="chamber">
+        <div class="floor">
+
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+    var minFloor = 0;
+    var maxFloor = 0;
+    var maxHeight = 0;
+    var jobs = null;
+    var floor = 0;
+    var position = 0;
+    var running = false;
+    var numberOfFloors = 0;
+    var frontDoor;
+    var backDoor;
+    var host = "localhost";
+
+    function createCORSRequest(method, url) {
+      var xhr = new XMLHttpRequest();
+      if ("withCredentials" in xhr) {
+        // XHR for Chrome/Firefox/Opera/Safari.
+        xhr.open(method, url, true);
+      } else if (typeof XDomainRequest != "undefined") {
+        // XDomainRequest for IE.
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+      } else {
+        // CORS not supported.
+        xhr = null;
+      }
+      xhr.setRequestHeader('Content-Type', 'text/plain');
+      return xhr;
+    }
+
+    var firstRendered = false;
+    function restRequest(){
+      var xhr = createCORSRequest('GET', 'http://'+host+':8080/elevator');
+      if (!xhr) {
+        throw new Error('CORS not supported');
+      }
+      xhr.onerror = function() {
+        window.setTimeout(restRequest, 1000);
+      };
+      xhr.onload = function() {
+        var responseText = xhr.responseText;
+        var responseObject = JSON.parse(responseText);
+        minFloor = responseObject.minFloor;
+        maxFloor = responseObject.maxFloor;
+        maxHeight = responseObject.maxHeight;
+        jobs = responseObject.jobs;
+        floor = responseObject.floor;
+        position = responseObject.position;
+        running = responseObject.running;
+        frontDoor = responseObject.frontDoor;
+        backDoor = responseObject.backDoor;
+        numberOfFloors = maxFloor - minFloor + 1;
+        if(firstRendered == false){
+          firstRendered = true;
+          renderElevator();
+        }
+        updateElevatorAndDisplays();
+        window.setTimeout(restRequest, 200);
+      };
+      xhr.send();
+    }
+
+    var chamberHeight = 0;
+    var chamberWidth = 0;
+    var floorHeight = 0;
+    var floorMargin = 0;
+
+    function updateElevatorAndDisplays(){
+      // update display
+      document.getElementById("floorDisplay").innerHTML = "Etage: " + floor;
+      // update grafic
+      var elevator = document.getElementById("elevator");
+      var doorLeft = document.getElementById("doorLeft");
+      var doorRight = document.getElementById("doorRight");
+      var newHeight = ((chamberHeight - (floorHeight + 2*floorMargin))/maxHeight*(maxHeight - position));
+      elevator.style.top = newHeight + "px";
+      doorLeft.style.top = newHeight + "px";
+      doorRight.style.top = newHeight + "px";
+      if(frontDoor != null && (frontDoor.state == "OPEN" || frontDoor.state == "OPENING")){
+        doorRight.style.opacity = "1";
+      }
+      else{
+        doorRight.style.opacity = "0";
+      }
+      if(backDoor != null && (backDoor.state == "OPEN" || backDoor.state == "OPENING")){
+        doorLeft.style.opacity = "1";
+      }
+      else{
+        doorLeft.style.opacity = "0";
+      }
+      for(var i = 0 ; i < numberOfFloors ; i++){
+        var markFloor = document.getElementById("floor"+i);
+        if(jobs.indexOf(i) > -1){
+          markFloor.style.backgroundColor = "red";
+        }
+        else{
+          markFloor.style.backgroundColor = "darkgrey";
+        }
+      }
+    }
+
+    function renderElevator(){
+      chamber = document.getElementById("chamber");
+      while (chamber.firstChild) {
+        chamber.removeChild(chamber.firstChild);
+      }
+      // calculate visible height of document
+      var h;
+      if(self.innerHeight)
+        h = window.innerHeight
+      else if(document.documentElement && document.documentElement.clientHeight)
+        h = document.documentElement.clientHeight;
+      else if(document.body)
+        h= document.body.clientHeight;
+      h = h - document.getElementById("head").offsetHeight - 20;
+      floorHeight = Math.floor((h/numberOfFloors)*0.9);
+      floorMargin = Math.floor((chamber.offsetHeight/numberOfFloors)*0.05);
+      // round to number of floors
+      chamberHeight = (floorHeight + 2 * floorMargin) * numberOfFloors;
+      chamberWidth = (h/numberOfFloors) - ((h/numberOfFloors)%4);
+      chamber.style.height = chamberHeight + "px";
+      chamber.style.width = chamberWidth + "px";
+      chamber.style.left = (chamberWidth / 2) + "px";
+      chamber.style.right = (chamberWidth / 2) + "px";
+
+      var elevatorContainer = document.getElementById("elevatorContainer");
+      elevatorContainer.style.left = ($(document).width() - chamberWidth*2) / 2 + "px";
+
+      var elevator = document.createElement("div");
+      elevator.id = "elevator";
+      elevator.className = "elevator";
+      elevator.style.height = floorHeight + "px";
+      elevator.style.marginBottom = floorMargin + "px";
+      elevator.style.marginTop = floorMargin + "px";
+      elevator.style.position = "absolute";
+      chamber.appendChild(elevator);
+
+      elevator.onclick = function(){
+            alert("test");
+          };
+
+      var doorLeft = document.createElement("div");
+      doorLeft.id = "doorLeft";
+      doorLeft.className = "door";
+      doorLeft.style.height = floorHeight + "px";
+      doorLeft.style.width = chamberWidth / 2 + "px";
+      doorLeft.style.marginBottom = floorMargin + "px";
+      doorLeft.style.marginTop = floorMargin + "px";
+      doorLeft.style.position = "absolute";
+      doorLeft.style.left = -(chamberWidth / 2) + "px";
+      chamber.appendChild(doorLeft);
+
+      var doorRight = document.createElement("div");
+      doorRight.id = "doorRight";
+      doorRight.className = "door";
+      doorRight.style.height = floorHeight + "px";
+      doorRight.style.width = chamberWidth / 2 + "px";
+      doorRight.style.marginBottom = floorMargin + "px";
+      doorRight.style.marginTop = floorMargin + "px";
+      doorRight.style.position = "absolute";
+      doorRight.style.left = chamberWidth + "px";
+      chamber.appendChild(doorRight);
+
+      for(var i = 0; i < numberOfFloors ; i++){
+        var newFloor = document.createElement("div");
+        var currentFloor = numberOfFloors-i-1;
+        newFloor.id = "floor" + currentFloor;
+        newFloor.className = "floor";
+        newFloor.style.height = floorHeight + "px";
+        newFloor.style.marginBottom = floorMargin + "px";
+        newFloor.style.marginTop = floorMargin + "px";
+        newFloor.floor = currentFloor;
+        newFloor.onclick = function(){
+            var jsonData = '{"floor": "' + this.floor + '"}';
+            postJson(jsonData, "job");
+        };
+        //newFloor.style.marginBottom = (chamber.offsetHeight/numberOfFloors)*0.1+"px";);
+        chamber.appendChild(newFloor);
+      }
+      //newFloor.style.marginBottom = (chamber.offsetHeight/numberOfFloors)*0.1+"px";);
+      //window.setTimeout(renderElevator, 100);
+    }
+
+    window.onresize = function(event) {
+        renderElevator();
+    };
+
+    restRequest();
+
+    $.postJSON = function(url, data, callback) {
+        return jQuery.ajax({
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        'type': 'POST',
+        'url': url,
+        'data': data,
+        'dataType': 'json',
+        'success': callback
+        });
+    };
+
+    function postJson(jsonData, name){
+      $.postJSON('http://'+host+':8080/elevator/' + name,jsonData, function()
+      {
+        //alert(jsonData);
+      });
+    }
+
+    function closeDoor(){
+      var jsonData = 'true';
+      postJson(jsonData, "closeDoor");
+    }
+
+    function openDoor(){
+      var jsonData = 'true';
+      postJson(jsonData, "openDoor");
+    }
+
+    function enableCleaningMode(){
+      var jsonData = 'true';
+      postJson(jsonData, "cleaningMode");
+    }
+
+    function disableCleaningMode(){
+      var jsonData = 'false';
+      postJson(jsonData, "cleaningMode");
+    }
+
+    function enableEmergencyMode(){
+      var jsonData = 'true';
+      postJson(jsonData, "emergency");
+    }
+
+    function disableEmergencyMode(){
+      var jsonData = 'false';
+      postJson(jsonData, "emergency");
+    }
+
+    </script>
+  </body>
+</html>
