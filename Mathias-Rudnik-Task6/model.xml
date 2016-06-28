@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+	<featureModel>
+		<properties/>
+		<struct>
+			<or abstract="true" mandatory="true" name="ElevatorSimulation">
+				<description>
+					
+				</description>
+				<and mandatory="true" name="Elevate">
+					<description>
+						Moves the elevators cabine up and down to a specified floor.
+					</description>
+					<feature name="SlowMotor">
+						<description>
+							
+						</description>
+					</feature>
+					<feature name="FastMotor">
+						<description>
+							
+						</description>
+					</feature>
+				</and>
+				<or abstract="true" mandatory="true" name="Display">
+					<description>
+						Visual user output, indicating the elevators state.
+					</description>
+					<feature abstract="true" mandatory="true" name="Floor">
+						<description>
+							Uses display to ouput the floor where the elevator currently is.
+						</description>
+					</feature>
+					<feature abstract="true" mandatory="true" name="Modus">
+						<description>
+							Outputs Elevators currents mode (Emergency, Cleaning, Police, Normal)
+						</description>
+					</feature>
+					<feature abstract="true" mandatory="true" name="DoorStatus">
+						<description>
+							Outputs the current door state
+						</description>
+					</feature>
+				</or>
+				<and abstract="true" mandatory="true" name="Input">
+					<description>
+						
+					</description>
+					<feature abstract="true" mandatory="true" name="Numbers">
+						<description>
+							Keypad where user enters floor he wants to go to
+						</description>
+					</feature>
+					<feature name="Emergency">
+						<description>
+							Button for case of emergency
+						</description>
+					</feature>
+					<feature name="CloseDoor">
+						<description>
+							Button to close the door immediately
+						</description>
+					</feature>
+					<feature name="OpenDoor">
+						<description>
+							Button to open the door immediately
+						</description>
+					</feature>
+					<feature name="Cleaning">
+						<description>
+							
+						</description>
+					</feature>
+				</and>
+				<or abstract="true" mandatory="true" name="Doors">
+					<description>
+						
+					</description>
+					<feature mandatory="true" name="Front">
+						<description>
+							
+						</description>
+					</feature>
+					<feature mandatory="true" name="Back">
+						<description>
+							
+						</description>
+					</feature>
+				</or>
+				<and abstract="true" mandatory="true" name="Modes">
+					<description>
+						
+					</description>
+					<feature abstract="true" mandatory="true" name="NormalMode">
+						<description>
+							Normal operation mode
+						</description>
+					</feature>
+					<feature abstract="true" name="PoliceMode">
+						<description>
+							Mode used by the police when they want to go to a floor as fast as possible without stops
+						</description>
+					</feature>
+					<feature name="CleaningMode">
+						<description>
+							Mode for cleaning the elevator. Doors won't close
+						</description>
+					</feature>
+					<feature name="EmergencyMode">
+						<description>
+							Mode indicating emergency. Call for help.
+						</description>
+					</feature>
+				</and>
+				<or abstract="true" mandatory="true" name="Audio">
+					<description>
+						
+					</description>
+					<feature abstract="true" mandatory="true" name="VoiceAudio">
+						<description>
+							Speaker tells the user which floor they reached
+						</description>
+					</feature>
+					<feature abstract="true" mandatory="true" name="Music">
+						<description>
+							Plays music inside the elevator
+						</description>
+					</feature>
+				</or>
+			</or>
+		</struct>
+		<constraints>
+			<rule>
+				<conj>
+					<disj>
+						<var>FastMotor</var>
+						<var>SlowMotor</var>
+					</disj>
+					<not>
+						<conj>
+							<var>FastMotor</var>
+							<var>SlowMotor</var>
+						</conj>
+					</not>
+				</conj>
+			</rule>
+			<rule>
+				<imp>
+					<var>Emergency</var>
+					<var>EmergencyMode</var>
+				</imp>
+			</rule>
+			<rule>
+				<imp>
+					<var>Cleaning</var>
+					<var>CleaningMode</var>
+				</imp>
+			</rule>
+		</constraints>
+		<calculations Auto="true" Constraints="true" Features="true" Redundant="true" Tautology="true"/>
+		<comments/>
+		<featureOrder userDefined="false"/>
+	</featureModel>
