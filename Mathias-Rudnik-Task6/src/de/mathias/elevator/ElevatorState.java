@@ -32,6 +32,14 @@ public class ElevatorState {
 		this.backDoor = backDoor;
 	}
 	
+	public void setFrontDoor(Door frontDoor) {
+		this.frontDoor = frontDoor;
+	}
+
+	public void setBackDoor(Door backDoor) {
+		this.backDoor = backDoor;
+	}
+	
 	@JsonProperty
 	public Door getFrontDoor() {
 		return frontDoor;

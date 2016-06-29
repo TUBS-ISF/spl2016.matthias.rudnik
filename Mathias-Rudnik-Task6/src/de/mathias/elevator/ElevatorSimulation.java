@@ -26,12 +26,6 @@ public class ElevatorSimulation extends Application<ElevatorConfiguration> {
 		
 		/* Constructor call with instantiation of all necessary plugins */
 		Elevator elevator = new Elevator(0, 10,
-				//#if FastMotor
-				new FastMotor(),
-				//#endif
-				//#if SlowMotor
-//@				new SlowMotor(),
-				//#endif
 				new ConsoleFloorNotification(),
 				new ConsoleEmergencyNotification()
 				);

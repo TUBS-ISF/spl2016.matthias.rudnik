@@ -10,5 +10,5 @@ public aspect SlowMotor {
 		}
 
 	}
-	private Motor de.mathias.elevator.Elevator.motor = new de.mathias.elevator.Elevator.SlowerMotor();
+	public Motor de.mathias.elevator.Elevator.motor = new de.mathias.elevator.Elevator.SlowerMotor();
 }

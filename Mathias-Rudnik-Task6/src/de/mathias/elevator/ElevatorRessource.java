@@ -28,20 +28,13 @@ public class ElevatorRessource {
 	@GET
 	@Timed
 	public ElevatorState getElevatorState() {
-		return new ElevatorState(e.getMinFloor(), e.getMaxFloor(),
+		ElevatorState s = new ElevatorState(e.getMinFloor(), e.getMaxFloor(),
 				e.getMaxHeight(), e.getJobs(), e.getFloor(), e.getPosition(),
 				e.isRunning(),
-				// #if Front
-				e.getFrontDoor(),
-				// #else
-				// @ null,
-				// #endif
-				// #if Back
-				// @ e.getBackDoor()
-				// #else
+				null,
 				null
-		// #endif
 		);
+		return s;
 	}
 
 	static class Job {

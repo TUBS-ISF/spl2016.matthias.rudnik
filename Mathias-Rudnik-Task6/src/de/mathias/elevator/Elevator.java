@@ -21,7 +21,7 @@ public class Elevator implements Runnable {
 	private boolean running;
 	//private Door frontDoor;
 	//private Door backDoor;
-	private Motor motor;
+	//private Motor motor;
 	private FloorNotification fNotification;
 	public EmergencyNotification eNotification;
 
@@ -37,10 +37,9 @@ public class Elevator implements Runnable {
 	public State state;
 	private Direction dir;
 
-	public Elevator(int minFloor, int maxFloor, Motor motor, FloorNotification fNotification, EmergencyNotification eNotification) {
+	public Elevator(int minFloor, int maxFloor, FloorNotification fNotification, EmergencyNotification eNotification) {
 		this.fNotification = fNotification;
 		this.eNotification = eNotification;
-		this.motor = motor;
 		this.minFloor = minFloor;
 		this.maxFloor = maxFloor;
 		this.maxHeight = (maxFloor - minFloor) * 100;
